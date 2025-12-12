@@ -92,10 +92,12 @@ func (r *Repository) CreateOrUpdateConversation(ctx context.Context, conv *model
 	}
 
 	// 更新现有对话
-	conv.ID = existing.ID
-	conv.LastMessageAt = time.Now()
-	conv.MessageCount = existing.MessageCount + 1
-	return r.db.WithContext(ctx).Save(conv).Error
+	existing.LastMessageAt = time.Now()
+	existing.MessageCount = existing.MessageCount + 1
+	if conv.Status != "" {
+		existing.Status = conv.Status
+	}
+	return r.db.WithContext(ctx).Save(&existing).Error
 }
 
 // CreateMessage 创建消息

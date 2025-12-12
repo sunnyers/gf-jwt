@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/fintech-canada/redbook-wechat-monitoring/internal/config"
 	"github.com/fintech-canada/redbook-wechat-monitoring/internal/integration/google_sheets"
@@ -126,9 +125,17 @@ func (s *Service) ProcessRedbookMessage(ctx context.Context, msg *redbook.Messag
 		return fmt.Errorf("保存对话失败: %w", err)
 	}
 
+	// 获取对话ID（如果是更新，需要重新查询）
+	var conversation model.Conversation
+	if err := s.db.WithContext(ctx).
+		Where("platform = ? AND customer_id = ? AND account_id = ?", conv.Platform, conv.CustomerID, conv.AccountID).
+		First(&conversation).Error; err != nil {
+		return fmt.Errorf("查询对话失败: %w", err)
+	}
+
 	// 保存消息
 	message := &model.Message{
-		ConversationID: conv.ID,
+		ConversationID: conversation.ID,
 		Platform:       "redbook",
 		MessageID:      msg.MsgID,
 		SenderID:       msg.FromUserID,
@@ -176,9 +183,17 @@ func (s *Service) ProcessWeChatMessage(ctx context.Context, msg *wechat.Message)
 		return fmt.Errorf("保存对话失败: %w", err)
 	}
 
+	// 获取对话ID（如果是更新，需要重新查询）
+	var conversation model.Conversation
+	if err := s.db.WithContext(ctx).
+		Where("platform = ? AND customer_id = ? AND account_id = ?", conv.Platform, conv.CustomerID, conv.AccountID).
+		First(&conversation).Error; err != nil {
+		return fmt.Errorf("查询对话失败: %w", err)
+	}
+
 	// 保存消息
 	message := &model.Message{
-		ConversationID: conv.ID,
+		ConversationID: conversation.ID,
 		Platform:       "wechat",
 		MessageID:      msg.MsgID,
 		SenderID:       msg.FromUserID,

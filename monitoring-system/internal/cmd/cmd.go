@@ -10,7 +10,6 @@ import (
 	"github.com/fintech-canada/redbook-wechat-monitoring/internal/service"
 	"github.com/fintech-canada/redbook-wechat-monitoring/internal/web"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
 	"github.com/gogf/gf/v2/os/glog"
 )
@@ -24,7 +23,12 @@ var (
 			// 获取配置文件路径
 			configPath := parser.GetOpt("config", "./config.yaml").String()
 			if configPath == "" {
-				configPath = "./config.yaml"
+				// 尝试从环境变量获取
+				if envPath := os.Getenv("CONFIG_PATH"); envPath != "" {
+					configPath = envPath
+				} else {
+					configPath = "./config.yaml"
+				}
 			}
 			
 			// 加载配置
@@ -35,7 +39,16 @@ var (
 
 			// 初始化日志
 			logger := glog.New()
-			logger.SetLevel(cfg.Logging.Level)
+			// 设置日志级别 (debug=1, info=2, warn=3, error=4)
+			levelMap := map[string]int{
+				"debug": 1,
+				"info":  2,
+				"warn":  3,
+				"error": 4,
+			}
+			if level, ok := levelMap[cfg.Logging.Level]; ok {
+				logger.SetLevel(level)
+			}
 			if cfg.Logging.File != "" {
 				logger.SetPath(cfg.Logging.File)
 				logger.SetStdoutPrint(false)
@@ -65,7 +78,7 @@ var (
 			// 启动Web服务器
 			s := g.Server()
 			s.SetPort(cfg.Server.Port)
-			s.SetHost(cfg.Server.Host)
+			// GoFrame会自动监听配置的端口
 
 			// 注册路由
 			web.RegisterRoutes(s, svc, cfg)

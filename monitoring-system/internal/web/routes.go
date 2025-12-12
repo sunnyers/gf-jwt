@@ -52,8 +52,8 @@ func handleRedbookWebhook(svc *service.Service) ghttp.HandlerFunc {
 		timestamp := r.Header.Get("X-Timestamp")
 		nonce := r.Header.Get("X-Nonce")
 
-		bodyBytes, err := r.GetBodyBytes()
-		if err != nil {
+		bodyBytes := r.GetBody()
+		if len(bodyBytes) == 0 {
 			r.Response.WriteStatus(400, "Invalid body")
 			return
 		}
@@ -76,8 +76,8 @@ func handleRedbookWebhook(svc *service.Service) ghttp.HandlerFunc {
 // handleWeChatWebhook 处理WeChat Webhook
 func handleWeChatWebhook(svc *service.Service) ghttp.HandlerFunc {
 	return func(r *ghttp.Request) {
-		bodyBytes, err := r.GetBodyBytes()
-		if err != nil {
+		bodyBytes := r.GetBody()
+		if len(bodyBytes) == 0 {
 			r.Response.WriteStatus(400, "Invalid body")
 			return
 		}
