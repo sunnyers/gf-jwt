@@ -1,0 +1,70 @@
+# Redbook和WeChat对话监控系统配置文件
+
+# 服务器配置
+server:
+  port: 8080
+  host: "0.0.0.0"
+
+# 数据库配置
+database:
+  type: "sqlite"  # sqlite, mysql, postgres
+  sqlite:
+    path: "./data/conversations.db"
+  mysql:
+    host: "localhost"
+    port: 3306
+    user: "root"
+    password: ""
+    database: "conversation_logs"
+  postgres:
+    host: "localhost"
+    port: 5432
+    user: "postgres"
+    password: ""
+    database: "conversation_logs"
+
+# Redbook API配置
+redbook:
+  enabled: true
+  app_id: ""  # 小红书应用ID
+  app_secret: ""  # 小红书应用密钥
+  webhook_token: ""  # Webhook验证令牌
+  webhook_url: "https://your-domain.com/api/webhook/redbook"
+
+# WeChat/WeCom配置
+wechat:
+  enabled: true
+  # 企业微信配置
+  wecom:
+    corp_id: ""  # 企业ID
+    corp_secret: ""  # 企业应用密钥
+    agent_id: ""  # 应用ID
+    webhook_token: ""  # Webhook验证令牌
+    webhook_url: "https://your-domain.com/api/webhook/wechat"
+  # 普通微信配置（如使用）
+  normal:
+    app_id: ""
+    app_secret: ""
+    webhook_token: ""
+
+# Google Sheets配置
+google_sheets:
+  enabled: true
+  spreadsheet_id: ""  # Google Sheets ID
+  credentials_file: "./config/google-credentials.json"  # 服务账号凭证文件
+  sheet_name: "对话记录"  # 工作表名称
+  sync_interval: 60  # 同步间隔（秒）
+
+# 日志配置
+logging:
+  level: "info"  # debug, info, warn, error
+  file: "./logs/monitoring.log"
+  max_size: 100  # MB
+  max_backups: 7
+  max_age: 30  # 天
+
+# 安全配置
+security:
+  jwt_secret: ""  # JWT密钥（用于管理界面认证）
+  admin_username: "admin"
+  admin_password: ""  # 首次运行后请修改
